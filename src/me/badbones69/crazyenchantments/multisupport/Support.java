@@ -138,33 +138,8 @@ public class Support {
 	}
 	
 	public static boolean inTerritory(Player player){
-		if(hasFactions()){
-			Plugin factions = Bukkit.getServer().getPluginManager().getPlugin("Factions");
-			if(factions.getDescription().getAuthors().contains("drtshock")){
-				if(FactionsUUID.inTerritory(player)){
-					return true;
-				}
-			}
-			if(factions.getDescription().getWebsite()!=null){
-				if(factions.getDescription().getWebsite().equalsIgnoreCase("https://www.massivecraft.com/factions")){
-					if(FactionsSupport.inTerritory(player)){
-						return true;
-					}
-				}
-			}
-		}
-		if(hasFeudal()){
-			if(FeudalSupport.inTerritory(player)){
-				return true;
-			}
-		}
 		if(hasASkyBlock()){
 			if(ASkyBlockSupport.inTerritory(player)){
-				return true;
-			}
-		}
-		if(hasAcidIsland()){
-			if(AcidIslandSupport.inTerritory(player)){
 				return true;
 			}
 		}
@@ -180,29 +155,8 @@ public class Support {
 		if(P instanceof Player&&O instanceof Player){
 			Player player = (Player) P;
 			Player other = (Player) O;
-			if(hasFactions()){
-				Plugin factions = Bukkit.getServer().getPluginManager().getPlugin("Factions");
-				if(factions.getDescription().getAuthors().contains("drtshock")){
-					if(FactionsUUID.isFriendly(player, other))return true;
-				}
-				if(factions.getDescription().getWebsite()!=null){
-					if(factions.getDescription().getWebsite().equalsIgnoreCase("https://www.massivecraft.com/factions")){
-						if(FactionsSupport.isFriendly(player, other))return true;
-					}
-				}
-			}
-			if(hasFeudal()){
-				if(FeudalSupport.isFrendly(player, other)){
-					return true;
-				}
-			}
 			if(hasASkyBlock()){
 				if(ASkyBlockSupport.isFriendly(player, other)){
-					return true;
-				}
-			}
-			if(hasAcidIsland()){
-				if(AcidIslandSupport.isFriendly(player, other)){
 					return true;
 				}
 			}
@@ -216,28 +170,6 @@ public class Support {
 	}
 	
 	public static boolean canBreakBlock(Player player, Block block){
-		if(hasFactions()){
-			Plugin factions = Bukkit.getServer().getPluginManager().getPlugin("Factions");
-			if(player!=null){
-				if(factions.getDescription().getAuthors().contains("drtshock")){
-					if(FactionsUUID.canBreakBlock(player, block))return true;
-					if(!FactionsUUID.canBreakBlock(player, block))return false;
-				}
-				if(factions.getDescription().getWebsite()!=null){
-					if(factions.getDescription().getWebsite().equalsIgnoreCase("https://www.massivecraft.com/factions")){
-						if(FactionsSupport.canBreakBlock(player, block))return true;
-						if(!FactionsSupport.canBreakBlock(player, block))return false;
-					}
-				}
-			}
-		}
-		if(hasFeudal()){
-			if(FeudalSupport.canBreakBlock(player, block)){
-				return true;
-			}else{
-				return false;
-			}
-		}
 		if(hasKingdoms()){
 			if(KingdomSupport.canBreakBlock(player, block)){
 				return true;

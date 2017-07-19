@@ -44,8 +44,6 @@ import me.badbones69.crazyenchantments.api.events.AuraActiveEvent;
 import me.badbones69.crazyenchantments.api.events.EnchantmentUseEvent;
 import me.badbones69.crazyenchantments.api.events.HellForgedUseEvent;
 import me.badbones69.crazyenchantments.controlers.ProtectionCrystal;
-import me.badbones69.crazyenchantments.multisupport.AACSupport;
-import me.badbones69.crazyenchantments.multisupport.SpartanSupport;
 import me.badbones69.crazyenchantments.multisupport.Support;
 
 public class Armor implements Listener{
@@ -120,9 +118,6 @@ public class Armor implements Listener{
 									if(Methods.randomPicker((8-Main.CE.getPower(armor, CEnchantments.ROCKET)))){
 										EnchantmentUseEvent event = new EnchantmentUseEvent(player, CEnchantments.ROCKET, armor);
 										Bukkit.getPluginManager().callEvent(event);
-										if(Support.hasAAC()){
-											AACSupport.exemptPlayerTime(player);
-										}
 										if(!event.isCancelled()){
 											Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
 												public void run(){
@@ -438,9 +433,6 @@ public class Armor implements Listener{
 									EnchantmentUseEvent event = new EnchantmentUseEvent(player, CEnchantments.IMPLANTS, armor);
 									Bukkit.getPluginManager().callEvent(event);
 									if(!event.isCancelled()){
-										if(Support.hasSpartan()){
-											SpartanSupport.cancelFastEat(player);
-										}
 										if(player.getFoodLevel()+food<=20){
 											player.setFoodLevel(player.getFoodLevel()+food);
 										}

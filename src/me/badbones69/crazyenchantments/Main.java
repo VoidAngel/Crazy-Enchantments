@@ -54,10 +54,7 @@ import me.badbones69.crazyenchantments.enchantments.Helmets;
 import me.badbones69.crazyenchantments.enchantments.PickAxes;
 import me.badbones69.crazyenchantments.enchantments.Swords;
 import me.badbones69.crazyenchantments.enchantments.Tools;
-import me.badbones69.crazyenchantments.multisupport.AACSupport;
-import me.badbones69.crazyenchantments.multisupport.DakataAntiCheatSupport;
 import me.badbones69.crazyenchantments.multisupport.SilkSpawners;
-import me.badbones69.crazyenchantments.multisupport.StackMobSupport;
 import me.badbones69.crazyenchantments.multisupport.Support;
 import me.badbones69.crazyenchantments.multisupport.Version;
 
@@ -117,17 +114,8 @@ public class Main extends JavaPlugin implements Listener{
 		pm.registerEvents(new Boots(), this);
 		pm.registerEvents(new Armor(), this);
 		pm.registerEvents(new Swords(), this);
-		if(Support.hasAAC()){
-			pm.registerEvents(new AACSupport(), this);
-		}
 		if(Support.hasSilkSpawner()){
 			pm.registerEvents(new SilkSpawners(), this);
-		}
-		if(Support.hasStackMob()){
-			pm.registerEvents(new StackMobSupport(), this);
-		}
-		if(Support.hasDakata()){
-			pm.registerEvents(new DakataAntiCheatSupport(), this);
 		}
 		//==========================================================================\\
 		try {

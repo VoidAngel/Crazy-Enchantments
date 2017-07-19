@@ -31,18 +31,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import me.badbones69.crazyenchantments.controlers.FireworkDamageAPI;
-import me.badbones69.crazyenchantments.multisupport.AACSupport;
-import me.badbones69.crazyenchantments.multisupport.SpartanSupport;
 import me.badbones69.crazyenchantments.multisupport.Support;
 import me.badbones69.crazyenchantments.multisupport.Version;
 import me.badbones69.crazyenchantments.multisupport.nms.NMS_v1_10_R1;
 import me.badbones69.crazyenchantments.multisupport.nms.NMS_v1_11_R1;
-import me.badbones69.crazyenchantments.multisupport.nms.NMS_v1_7_R4;
-import me.badbones69.crazyenchantments.multisupport.nms.NMS_v1_8_R1;
-import me.badbones69.crazyenchantments.multisupport.nms.NMS_v1_8_R2;
-import me.badbones69.crazyenchantments.multisupport.nms.NMS_v1_8_R3;
-import me.badbones69.crazyenchantments.multisupport.nms.NMS_v1_9_R1;
-import me.badbones69.crazyenchantments.multisupport.nms.NMS_v1_9_R2;
 
 public class Methods{
 	
@@ -107,18 +99,6 @@ public class Methods{
 				return NMS_v1_11_R1.addGlow(item);
 			case v1_10_R1:
 				return NMS_v1_10_R1.addGlow(item);
-			case v1_9_R2:
-				return NMS_v1_9_R2.addGlow(item);
-			case v1_9_R1:
-				return NMS_v1_9_R1.addGlow(item);
-			case v1_8_R3:
-				return NMS_v1_8_R3.addGlow(item);
-			case v1_8_R2:
-				return NMS_v1_8_R2.addGlow(item);
-			case v1_8_R1:
-				return NMS_v1_8_R1.addGlow(item);
-			case v1_7_R4:
-				return NMS_v1_7_R4.addGlow(item);
 			default:
 				return item;
 		}
@@ -131,18 +111,6 @@ public class Methods{
 					return NMS_v1_11_R1.addGlow(item);
 				case v1_10_R1:
 					return NMS_v1_10_R1.addGlow(item);
-				case v1_9_R2:
-					return NMS_v1_9_R2.addGlow(item);
-				case v1_9_R1:
-					return NMS_v1_9_R1.addGlow(item);
-				case v1_8_R3:
-					return NMS_v1_8_R3.addGlow(item);
-				case v1_8_R2:
-					return NMS_v1_8_R2.addGlow(item);
-				case v1_8_R1:
-					return NMS_v1_8_R1.addGlow(item);
-				case v1_7_R4:
-					return NMS_v1_7_R4.addGlow(item);
 				default:
 					return item;
 			}
@@ -322,12 +290,6 @@ public class Methods{
 			case v1_10_R1:
 				item = NMS_v1_10_R1.getSpawnEgg(EntityType.fromId(ty), amount);
 				break;
-			case v1_9_R2:
-				item = NMS_v1_9_R2.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
-			case v1_9_R1:
-				item = NMS_v1_9_R1.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
 			default:
 				break;
 			}
@@ -352,12 +314,6 @@ public class Methods{
 				break;
 			case v1_10_R1:
 				item = NMS_v1_10_R1.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
-			case v1_9_R2:
-				item = NMS_v1_9_R2.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
-			case v1_9_R1:
-				item = NMS_v1_9_R1.getSpawnEgg(EntityType.fromId(ty), amount);
 				break;
 			default:
 				break;
@@ -387,12 +343,6 @@ public class Methods{
 				break;
 			case v1_10_R1:
 				item = NMS_v1_10_R1.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
-			case v1_9_R2:
-				item = NMS_v1_9_R2.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
-			case v1_9_R1:
-				item = NMS_v1_9_R1.getSpawnEgg(EntityType.fromId(ty), amount);
 				break;
 			default:
 				break;
@@ -424,12 +374,6 @@ public class Methods{
 				break;
 			case v1_10_R1:
 				item = NMS_v1_10_R1.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
-			case v1_9_R2:
-				item = NMS_v1_9_R2.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
-			case v1_9_R1:
-				item = NMS_v1_9_R1.getSpawnEgg(EntityType.fromId(ty), amount);
 				break;
 			default:
 				break;
@@ -464,12 +408,6 @@ public class Methods{
 				break;
 			case v1_10_R1:
 				item = NMS_v1_10_R1.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
-			case v1_9_R2:
-				item = NMS_v1_9_R2.getSpawnEgg(EntityType.fromId(ty), amount);
-				break;
-			case v1_9_R1:
-				item = NMS_v1_9_R1.getSpawnEgg(EntityType.fromId(ty), amount);
 				break;
 			default:
 				break;
@@ -948,19 +886,6 @@ public class Methods{
 						if(!Support.isFriendly(player, en)){
 							if(!player.getName().equalsIgnoreCase(e.getName())){
 								en.damage(5D);
-								if(en instanceof Player){
-									if(Support.hasSpartan()){
-										SpartanSupport.cancelSpeed((Player) player);
-										SpartanSupport.cancelFly((Player) player);
-										SpartanSupport.cancelClip((Player) player);
-										SpartanSupport.cancelNormalMovements((Player) player);
-										SpartanSupport.cancelNoFall((Player) player);
-										SpartanSupport.cancelJesus((Player) player);
-									}
-									if(Support.hasAAC()){
-										AACSupport.exemptPlayerTime((Player) player);
-									}
-								}
 								en.setVelocity(en.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(1).setY(.5));
 							}
 						}
@@ -984,19 +909,6 @@ public class Methods{
 						if(!Support.isFriendly(player, en)){
 							if(!player.getName().equalsIgnoreCase(e.getName())){
 								en.damage(5D);
-								if(en instanceof Player){
-									if(Support.hasSpartan()){
-										SpartanSupport.cancelSpeed((Player) player);
-										SpartanSupport.cancelFly((Player) player);
-										SpartanSupport.cancelClip((Player) player);
-										SpartanSupport.cancelNormalMovements((Player) player);
-										SpartanSupport.cancelNoFall((Player) player);
-										SpartanSupport.cancelJesus((Player) player);
-									}
-									if(Support.hasAAC()){
-										AACSupport.exemptPlayerTime((Player) player);
-									}
-								}
 								en.setVelocity(en.getLocation().toVector().subtract(arrow.getLocation().toVector()).normalize().multiply(1).setY(.5));
 							}
 						}

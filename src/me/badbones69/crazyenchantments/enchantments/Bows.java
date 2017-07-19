@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -26,8 +27,6 @@ import me.badbones69.crazyenchantments.Main;
 import me.badbones69.crazyenchantments.Methods;
 import me.badbones69.crazyenchantments.api.CEnchantments;
 import me.badbones69.crazyenchantments.api.events.EnchantmentUseEvent;
-import me.badbones69.crazyenchantments.multisupport.AACSupport;
-import me.badbones69.crazyenchantments.multisupport.SpartanSupport;
 import me.badbones69.crazyenchantments.multisupport.Support;
 
 public class Bows implements Listener{
@@ -133,6 +132,36 @@ public class Bows implements Listener{
 		}
 	}
 	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onEntityDeath(EntityDeathEvent e){
+		if(e.getEntity().getLastDamageCause() instanceof Arrow){
+			if(e.getEntity() instanceof LivingEntity){
+				LivingEntity en = (LivingEntity) e.getEntity();
+				Projectile arrow = (Projectile) en.getLastDamageCause();
+				if(Arrow.containsKey(arrow)){
+					if(P.containsKey(arrow)){
+						ItemStack item = Arrow.get(arrow);
+						if(!Support.isFriendly(P.get(en.getLastDamageCause()), e.getEntity())){
+							if(arrow.getShooter() instanceof Player){
+								if(Enchant.get(arrow).contains(CEnchantments.INQUISITIVE)){
+									if(CEnchantments.INQUISITIVE.isEnabled()){
+										if(Methods.randomPicker(3)){
+											EnchantmentUseEvent event = new EnchantmentUseEvent((Player)arrow.getShooter(), CEnchantments.INQUISITIVE, item);
+											Bukkit.getPluginManager().callEvent(event);
+											if(!event.isCancelled()){
+												e.setDroppedExp(e.getDroppedExp() * (Main.CE.getPower(item, CEnchantments.INQUISITIVE) + 1));
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.MONITOR)
  	public void onArrowDamage(EntityDamageByEntityEvent e){
@@ -182,17 +211,6 @@ public class Bows implements Listener{
 												Bukkit.getPluginManager().callEvent(event);
 												Player player = (Player) e.getEntity();
 												if(!event.isCancelled()){
-													if(Support.hasSpartan()){
-														SpartanSupport.cancelSpeed(player);
-														SpartanSupport.cancelFly(player);
-														SpartanSupport.cancelClip(player);
-														SpartanSupport.cancelNormalMovements(player);
-														SpartanSupport.cancelNoFall(player);
-														SpartanSupport.cancelJesus(player);
-													}
-													if(Support.hasAAC()){
-														AACSupport.exemptPlayerTime(player);
-													}
 													en.setVelocity(v);
 												}
 											}else{
@@ -258,6 +276,7 @@ public class Bows implements Listener{
 	private ArrayList<CEnchantments> getEnchantments(){
 		ArrayList<CEnchantments> enchants = new ArrayList<CEnchantments>();
 		enchants.add(CEnchantments.BOOM);
+		enchants.add(CEnchantments.INQUISITIVE);
 		enchants.add(CEnchantments.DOCTOR);
 		enchants.add(CEnchantments.ICEFREEZE);
 		enchants.add(CEnchantments.LIGHTNING);
