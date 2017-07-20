@@ -1,295 +1,104 @@
-package me.badbones69.crazyenchantments.enchantments;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
-
-import me.badbones69.crazyenchantments.Main;
-import me.badbones69.crazyenchantments.Methods;
-import me.badbones69.crazyenchantments.api.CEnchantments;
-import me.badbones69.crazyenchantments.api.events.EnchantmentUseEvent;
-import me.badbones69.crazyenchantments.multisupport.Support;
-
-public class Bows implements Listener{
-
-	private HashMap<Projectile, Entity> P = new HashMap<Projectile, Entity>();
-	private HashMap<Projectile, ItemStack> Arrow = new HashMap<Projectile, ItemStack>();
-	private HashMap<Projectile, ArrayList<CEnchantments>> Enchant = new HashMap<Projectile, ArrayList<CEnchantments>>();
-	
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onBowShoot(final EntityShootBowEvent e){
-		if(e.isCancelled())return;
-		ItemStack bow = e.getBow();
-		if(Main.CE.hasEnchantments(bow)){
-			Boolean hasEnchantments = false;
-			ArrayList<CEnchantments> enchants = new ArrayList<CEnchantments>();
-			for(CEnchantments ench : getEnchantments()){
-				Projectile arrow = (Projectile) e.getProjectile();
-				if(Main.CE.hasEnchantment(bow, ench)){
-					if(ench.isEnabled()){
-						Arrow.put(arrow, bow);
-						P.put(arrow, e.getEntity());
-						enchants.add(ench);
-						hasEnchantments = true;
-					}
-				}
-			}
-			if(hasEnchantments){
-				Enchant.put((Projectile) e.getProjectile(), enchants);
-			}
-			if(Main.CE.hasEnchantment(bow, CEnchantments.MULTIARROW)){
-				if(CEnchantments.MULTIARROW.isEnabled()){
-					int power = Main.CE.getPower(bow, CEnchantments.MULTIARROW);
-					if(Methods.randomPicker(3)){
-						if(e.getEntity() instanceof Player){
-							EnchantmentUseEvent event = new EnchantmentUseEvent((Player)e.getEntity(), CEnchantments.MULTIARROW, bow);
-							Bukkit.getPluginManager().callEvent(event);
-							if(!event.isCancelled()){
-								for(int i=1;i<=power;i++){
-									Arrow arrow = e.getEntity().getWorld().spawn(e.getProjectile().getLocation(), Arrow.class);
-									arrow.setShooter(e.getEntity());
-									arrow.setBounce(false);
-									Vector v = new Vector(Vec(), 0, Vec());
-									arrow.setVelocity(e.getProjectile().getVelocity().add(v));
-									if(((Arrow)e.getProjectile()).isCritical())arrow.setCritical(true);
-								}
-							}
-						}else{
-							for(int i=1;i<=power;i++){
-								Arrow arrow = e.getEntity().getWorld().spawn(e.getProjectile().getLocation(), Arrow.class);
-								arrow.setShooter(e.getEntity());
-								arrow.setBounce(false);
-								Vector v = new Vector(Vec(), 0, Vec());
-								arrow.setVelocity(e.getProjectile().getVelocity().add(v));
-								if(((Arrow)e.getProjectile()).isCritical())arrow.setCritical(true);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onland(ProjectileHitEvent e) {
-		if(Arrow.containsKey(e.getEntity())){
-			if(P.containsKey(e.getEntity())){
-				final Entity arrow = e.getEntity();
-				if(Enchant.get(arrow).contains(CEnchantments.BOOM)){
-					if(CEnchantments.BOOM.isEnabled()){
-						if(Methods.randomPicker(6-Main.CE.getPower(Arrow.get(arrow), CEnchantments.BOOM))){
-							Methods.explode(P.get(arrow), arrow);
-							arrow.remove();
-						}
-					}
-				}
-				if(Enchant.get(arrow).contains(CEnchantments.LIGHTNING)){
-					if(CEnchantments.LIGHTNING.isEnabled()){
-						Location loc = arrow.getLocation();
-						if(Methods.randomPicker(5)){
-							loc.getWorld().strikeLightningEffect(loc);
-							for(LivingEntity en : Methods.getNearbyLivingEntities(loc, 2D, arrow)){
-								if(Support.allowsPVP(en.getLocation())){
-									if(!Support.isFriendly(P.get(arrow), en)){
-										if(!P.get(arrow).getName().equalsIgnoreCase(en.getName())){
-											en.damage(5D);
-										}
-									}
-								}
-							}
-						}
-						P.remove(arrow);
-					}
-				}
-				new BukkitRunnable(){
-					@Override
-					public void run() {
-						if(Arrow.containsKey(arrow)){
-							Arrow.remove(arrow);
-						}
-					}
-				}.runTaskLaterAsynchronously(Bukkit.getServer().getPluginManager().getPlugin("CrazyEnchantments"), 5*20);
-			}
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onEntityDeath(EntityDeathEvent e){
-		if(e.getEntity().getLastDamageCause() instanceof Arrow){
-			if(e.getEntity() instanceof LivingEntity){
-				LivingEntity en = (LivingEntity) e.getEntity();
-				Projectile arrow = (Projectile) en.getLastDamageCause();
-				if(Arrow.containsKey(arrow)){
-					if(P.containsKey(arrow)){
-						ItemStack item = Arrow.get(arrow);
-						if(!Support.isFriendly(P.get(en.getLastDamageCause()), e.getEntity())){
-							if(arrow.getShooter() instanceof Player){
-								if(Enchant.get(arrow).contains(CEnchantments.INQUISITIVE)){
-									if(CEnchantments.INQUISITIVE.isEnabled()){
-										if(Methods.randomPicker(3)){
-											EnchantmentUseEvent event = new EnchantmentUseEvent((Player)arrow.getShooter(), CEnchantments.INQUISITIVE, item);
-											Bukkit.getPluginManager().callEvent(event);
-											if(!event.isCancelled()){
-												e.setDroppedExp(e.getDroppedExp() * (Main.CE.getPower(item, CEnchantments.INQUISITIVE) + 1));
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	@SuppressWarnings("deprecation")
-	@EventHandler(priority = EventPriority.MONITOR)
- 	public void onArrowDamage(EntityDamageByEntityEvent e){
-		if(e.getDamager() instanceof Arrow){
-			if(e.getEntity() instanceof LivingEntity){
-				LivingEntity en = (LivingEntity) e.getEntity();
-				Projectile arrow = (Projectile) e.getDamager();
-				if(Arrow.containsKey(arrow)){
-					if(P.containsKey(arrow)){
-						ItemStack item = Arrow.get(arrow);
-						if(Support.isFriendly(P.get(e.getDamager()), e.getEntity())){
-							if(Enchant.get(arrow).contains(CEnchantments.DOCTOR)){
-								if(CEnchantments.DOCTOR.isEnabled()){
-									int heal = 1 + Main.CE.getPower(Arrow.get(arrow), CEnchantments.DOCTOR);
-									if (en.getHealth() < en.getMaxHealth()) {
-										if (en instanceof Player) {
-											EnchantmentUseEvent event = new EnchantmentUseEvent((Player) e.getEntity(), CEnchantments.DOCTOR, item);
-											Bukkit.getPluginManager().callEvent(event);
-											if (!event.isCancelled()) {
-												if (en.getHealth() + heal < en.getMaxHealth()) {
-													en.setHealth(en.getHealth() + heal);
-												}
-												if (en.getHealth() + heal >= en.getMaxHealth()) {
-													en.setHealth(en.getMaxHealth());
-												}
-											}
-										}else {
-											if (en.getHealth() + heal < en.getMaxHealth()) {
-												en.setHealth(en.getHealth() + heal);
-											}
-											if (en.getHealth() + heal >= en.getMaxHealth()) {
-												en.setHealth(en.getMaxHealth());
-											}
-										}
-									}
-								}
-							}
-						}
-						if(!e.isCancelled()){
-							if(!Support.isFriendly(P.get(arrow), e.getEntity())){
-								if(Enchant.get(arrow).contains(CEnchantments.PULL)){
-									if(CEnchantments.PULL.isEnabled()){
-										if(Methods.randomPicker(5 - Main.CE.getPower(Arrow.get(arrow), CEnchantments.PULL))){
-											Vector v = P.get(arrow).getLocation().toVector().subtract(en.getLocation().toVector()).normalize().multiply(3).setY(2);
-											if(en instanceof Player){
-												EnchantmentUseEvent event = new EnchantmentUseEvent((Player)e.getEntity(), CEnchantments.PULL, item);
-												Bukkit.getPluginManager().callEvent(event);
-												Player player = (Player) e.getEntity();
-												if(!event.isCancelled()){
-													en.setVelocity(v);
-												}
-											}else{
-												en.setVelocity(v);
-											}
-										}
-									}
-								}
-								if(Enchant.get(arrow).contains(CEnchantments.ICEFREEZE)){
-									if(CEnchantments.ICEFREEZE.isEnabled()){
-										if(Methods.randomPicker(5)){
-											if(en instanceof Player){
-												EnchantmentUseEvent event = new EnchantmentUseEvent((Player)e.getEntity(), CEnchantments.ICEFREEZE, item);
-												Bukkit.getPluginManager().callEvent(event);
-												if(!event.isCancelled()){
-													en.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5*20, 1));
-												}
-											}else{
-												en.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5*20, 1));
-											}
-										}
-									}
-								}
-								if(Enchant.get(arrow).contains(CEnchantments.PIERCING)){
-									if(CEnchantments.PIERCING.isEnabled()){
-										if(Methods.randomPicker(20-Main.CE.getPower(Arrow.get(arrow), CEnchantments.PIERCING))){
-											if(en instanceof Player){
-												EnchantmentUseEvent event = new EnchantmentUseEvent((Player)e.getEntity(), CEnchantments.PIERCING, item);
-												Bukkit.getPluginManager().callEvent(event);
-												if(!event.isCancelled()){
-													e.setDamage(e.getDamage() *2);
-												}
-											}else{
-												e.setDamage(e.getDamage() *2);
-											}
-										}
-									}
-								}
-								if(Enchant.get(arrow).contains(CEnchantments.VENOM)){
-									if(CEnchantments.VENOM.isEnabled()){
-										if(Methods.randomPicker(10)){
-											if(en instanceof Player){
-												EnchantmentUseEvent event = new EnchantmentUseEvent((Player)e.getEntity(), CEnchantments.VENOM, item);
-												Bukkit.getPluginManager().callEvent(event);
-												if(!event.isCancelled()){
-													en.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 2*20, Main.CE.getPower(Arrow.get(arrow), CEnchantments.VENOM)-1));
-												}
-											}else{
-												en.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 2*20, Main.CE.getPower(Arrow.get(arrow), CEnchantments.VENOM)-1));
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	
-	private ArrayList<CEnchantments> getEnchantments(){
-		ArrayList<CEnchantments> enchants = new ArrayList<CEnchantments>();
-		enchants.add(CEnchantments.BOOM);
-		enchants.add(CEnchantments.INQUISITIVE);
-		enchants.add(CEnchantments.DOCTOR);
-		enchants.add(CEnchantments.ICEFREEZE);
-		enchants.add(CEnchantments.LIGHTNING);
-		enchants.add(CEnchantments.PIERCING);
-		enchants.add(CEnchantments.VENOM);
-		enchants.add(CEnchantments.PULL);
-		return enchants;
-	}
-	
-	private float Vec(){
-		float spread = (float) .2;
-		float Vec = -spread + (float) (Math.random() * ((spread - -spread)));
-		return Vec;
-	}
-	
-}
+#Potion Effect Names to pick from: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/potion/PotionEffectType.html
+Enchantments:
+  Cyborg: #Enchantment
+    Enabled: True #Enable and disable the enchantment
+    Name: 'Cyborg' #The in-game name of the enchantment
+    Color: '&7' #The color of the enchantment on the item
+    BookColor: '&b&l' #The color of the enchantment on the book
+    MaxPower: 1 #Max lvl the enchantment goes up to
+    Categories: #All the categories the Enchantment can be found in
+      - 'Common'
+      - 'Rare'
+      - 'Legendary'
+    Info:
+      Name: '&e&lCyborg &7(&bI&7)'
+      Description:
+        - '&7Gives you speed, strength and'
+        - '&7jump boost to take down your enemies.'
+        - ''
+        - '&6Found in:'
+        - '&7 - &a&l&nCommon'
+        - '&7 - &9&l&nRare'
+        - '&7 - &4&l&nLegendary'
+        - '&6Enchantable Items: &aArmor'
+    EnchantOptions: #Customizing Options for each enchantment.
+      ItemsEnchantable: 'Armor' #You can pick from Armor, Boots, Helmet, Axe, Sword, Weapons(Swords & Axes), and Bow.
+      ArmorOptions: #Options that only effect Armor Enchantments.
+        PowerIncrease: 1 #How many times the Potion Effects go up each lvl.
+        PotionEffects: #Potion types that will be applied.
+          - 'SPEED:1, Time:1000000'
+          - 'INCREASE_DAMAGE:2, Time:1000000'
+          - 'JUMP:2, Time:1000000'
+  Sniper: #Enchantment
+    Enabled: True #Enable and disable the enchantment
+    Name: 'Sniper' #The in-game name of the enchantment
+    Color: '&7' #The color of the enchantment on the item
+    BookColor: '&b&l' #The color of the enchantment on the book
+    MaxPower: 5 #Max lvl the enchantment goes up to
+    Categories: #All the categories the Enchantment can be found in
+      - 'Common'
+      - 'Rare'
+      - 'Legendary'
+    Info:
+      Name: '&e&lSniper &7(&bI-&bV&7)'
+      Description:
+        - '&7Shoot an enemy with this and'
+        - '&7it has a chance to poison them.'
+        - ''
+        - '&6Found in:'
+        - '&7 - &a&l&nCommon'
+        - '&7 - &9&l&nRare'
+        - '&7 - &4&l&nLegendary'
+        - '&6Enchantable Items: &aBows'
+    EnchantOptions: #Customizing Options for each enchantment.
+      ItemsEnchantable: 'Bow' #You can pick from Armor, Boots, Helmet, Axe, Sword, Weapons(Swords & Axes), and Bow.
+      BowOptions: #Options that only effect Bow Enchantments.
+        OnHit: #When the arrow Hits.
+          #Remove the # to use the Exploding option.
+          #Ground: #Options if the arrow hits the ground.
+          #  Explode: #Options for the explosion.
+          #   Power: 2 #The power of the explosion.
+          #    PowerIncrease: 2 #How much each lvl will increases the strength.
+          #    Chance: 25 #Chance of the arrow exploding.
+          Damaged: #The player that is attacked.
+            PowerIncrease: 1 #How many times the Potion Effects go up each lvl.
+            PotionEffects: #Effects that are added to the Damaged.
+            - 'POISON:2, Time:5, Chance:25'
+  Slice: #Enchantment
+    Enabled: True #Enable and disable the enchantment
+    Name: 'Slice' #The in-game name of the enchantment
+    Color: '&7' #The color of the enchantment on the item
+    BookColor: '&b&l' #The color of the enchantment on the book
+    MaxPower: 2 #Max lvl the enchantment goes up to
+    Categories: #All the categories the Enchantment can be found in
+      - 'Common'
+      - 'Rare'
+      - 'Legendary'
+    Info:
+      Name: '&e&lSlice &7(&bI-&bII&7)'
+      Description:
+        - '&7Gives you a chance to'
+        - '&7do a lot more damage.'
+        - ''
+        - '&6Found in:'
+        - '&7 - &a&l&nCommon'
+        - '&7 - &9&l&nRare'
+        - '&7 - &4&l&nLegendary'
+        - '&6Enchantable Items: &aWeapons'
+    EnchantOptions: #Customizing Options for each enchantment.
+      ItemsEnchantable: 'Weapons' #You can pick from Armor, Boots, Helmet, Axe, Sword, Weapons(Swords & Axes), and Bow.
+      WeaponOptions: #Options that only effect Sword and Axe Enchantments.
+        #Remove the # to use the Damager options.
+        #Damager: #The player with the sword.
+        #  PowerIncrease: 1 #How many times the Potion Effects go up each lvl.
+        #  PotionEffects: #Effects that are added to the Damager.
+        #    - 'REGENERATION:2, Time:10, Chance:25'
+        Damaged: #The player that is attacked.
+          DamageMultiplyer: #The Damager Multipler Option.
+            PowerIncrease: 1 #How many times the Multiplier will go up each lvl.
+            Multiplyer: 2 #How many times stronger the attack is.
+            Chance: 25 #The chance of the multiplier happening.
+          #Remove the # to use the Potion options.
+          #PowerIncrease: 1 #How many times the Potion Effects go up each lvl.
+          #PotionEffects: #Effects that are added to the Damaged.
+          #  - 'POISON:2, Time:5, Chance:25'
