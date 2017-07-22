@@ -14,8 +14,7 @@
 	<classpathentry kind="lib" path="C:/Users/Jessi_000/Desktop/Dependencies/Vault.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Jessi_000/Desktop/Dependencies/worldedit-bukkit-6.1.2.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Jessi_000/Desktop/Dependencies/worldguard-6.1.2.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Jessi_000/Desktop/Dependencies/spigot-1.10-R0.1-SNAPSHOT-latest.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Jessi_000/Desktop/Dependencies/spigot-1.11.2-R0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Jessi_000/Desktop/Dependencies/SilkSpawners.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jessi_000/Desktop/Dependencies/spigot-1.11.2-R0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
