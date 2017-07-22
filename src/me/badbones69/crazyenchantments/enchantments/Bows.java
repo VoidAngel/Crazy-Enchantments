@@ -59,21 +59,10 @@ public class Bows implements Listener{
 			if(Main.CE.hasEnchantment(bow, CEnchantments.MULTIARROW)){
 				if(CEnchantments.MULTIARROW.isEnabled()){
 					int power = Main.CE.getPower(bow, CEnchantments.MULTIARROW);
-					if(Methods.randomPicker(3)){
-						if(e.getEntity() instanceof Player){
-							EnchantmentUseEvent event = new EnchantmentUseEvent((Player)e.getEntity(), CEnchantments.MULTIARROW, bow);
-							Bukkit.getPluginManager().callEvent(event);
-							if(!event.isCancelled()){
-								for(int i=1;i<=power;i++){
-									Arrow arrow = e.getEntity().getWorld().spawn(e.getProjectile().getLocation(), Arrow.class);
-									arrow.setShooter(e.getEntity());
-									arrow.setBounce(false);
-									Vector v = new Vector(Vec(), 0, Vec());
-									arrow.setVelocity(e.getProjectile().getVelocity().add(v));
-									if(((Arrow)e.getProjectile()).isCritical())arrow.setCritical(true);
-								}
-							}
-						}else{
+					if(e.getEntity() instanceof Player){
+						EnchantmentUseEvent event = new EnchantmentUseEvent((Player)e.getEntity(), CEnchantments.MULTIARROW, bow);
+						Bukkit.getPluginManager().callEvent(event);
+						if(!event.isCancelled()){
 							for(int i=1;i<=power;i++){
 								Arrow arrow = e.getEntity().getWorld().spawn(e.getProjectile().getLocation(), Arrow.class);
 								arrow.setShooter(e.getEntity());
@@ -82,6 +71,15 @@ public class Bows implements Listener{
 								arrow.setVelocity(e.getProjectile().getVelocity().add(v));
 								if(((Arrow)e.getProjectile()).isCritical())arrow.setCritical(true);
 							}
+						}
+					}else{
+						for(int i=1;i<=power;i++){
+							Arrow arrow = e.getEntity().getWorld().spawn(e.getProjectile().getLocation(), Arrow.class);
+							arrow.setShooter(e.getEntity());
+							arrow.setBounce(false);
+							Vector v = new Vector(Vec(), 0, Vec());
+							arrow.setVelocity(e.getProjectile().getVelocity().add(v));
+							if(((Arrow)e.getProjectile()).isCritical())arrow.setCritical(true);
 						}
 					}
 				}
